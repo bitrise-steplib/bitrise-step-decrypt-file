@@ -12,10 +12,10 @@ workflows:
     before_run:
     - audit-this-step
     steps:
-    - go-list:
-    - golint:
-    - errcheck:
-    - go-test:
+    # - go-list:
+    # - golint:
+    # - errcheck:
+    # - go-test:
     - change-workdir:
         title: Switch working dir to test / _tmp dir
         description: |-
@@ -27,6 +27,14 @@ workflows:
         inputs:
         - path: ./_tmp
         - is_create_path: true
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            echo BITRISE_SOURCE_DIR: ${BITRISE_SOURCE_DIR}
+            echo ORIG_BITRISE_SOURCE_DIR: ${ORIG_BITRISE_SOURCE_DIR}
+            echo working directory: $(pwd)
+
     - script-runner:
         title: Encrypt a file used to test the step
         deps:
@@ -38,7 +46,7 @@ workflows:
           - name: pwgen
         inputs:
         - file_path: "$ORIG_BITRISE_SOURCE_DIR/test/encrypt_file.go"
-        - working_dir: $GOPATH/src/github.com/bitrise-step/bitrise-step-decrypt-file/_tmp/
+        - working_dir: $ORIG_BITRISE_SOURCE_DIR/_tmp
         - runner: "go run"
         - is_debug: "yes"
     - path::./:
