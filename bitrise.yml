@@ -12,10 +12,10 @@ workflows:
     before_run:
     - audit-this-step
     steps:
-    # - go-list:
-    # - golint:
-    # - errcheck:
-    # - go-test:
+    - go-list:
+    - golint:
+    - errcheck:
+    - go-test:
     - change-workdir:
         title: Switch working dir to test / _tmp dir
         description: |-
@@ -34,7 +34,6 @@ workflows:
             echo BITRISE_SOURCE_DIR: ${BITRISE_SOURCE_DIR}
             echo ORIG_BITRISE_SOURCE_DIR: ${ORIG_BITRISE_SOURCE_DIR}
             echo working directory: $(pwd)
-
     - script-runner:
         title: Encrypt a file used to test the step
         deps:
