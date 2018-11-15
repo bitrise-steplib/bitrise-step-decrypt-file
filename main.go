@@ -48,5 +48,5 @@ func main() {
 	if err != nil {
 		failf("Decryption with gpg failed, error: %#v | output: %s", err, out)
 	}
-	log.Donef("Encryption done, output file path: %s", outputFileAbsPath)
+	log.Donef("Decryption done, output file path: %s", outputFileAbsPath)
 }
