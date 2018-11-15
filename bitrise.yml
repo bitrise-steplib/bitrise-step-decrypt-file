@@ -1,14 +1,13 @@
 format_version: 6
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
-app:
-  envs:
-  - FILE_DECRYPT_PASSPHRASE:
-  - ENCRYPTED_FILE:
-  - ORIG_BITRISE_SOURCE_DIR: $BITRISE_SOURCE_DIR
-
 workflows:
-  test:
+  test:  
+    envs:
+    - FILE_DECRYPT_PASSPHRASE:
+    - ENCRYPTED_FILE:
+    - ORIG_BITRISE_SOURCE_DIR: $BITRISE_SOURCE_DIR
+    - DECRYPTED_FILE: "decrypted"
     before_run:
     - audit-this-step
     steps:
@@ -45,7 +44,6 @@ workflows:
           - name: pwgen
         inputs:
         - file_path: "$ORIG_BITRISE_SOURCE_DIR/test/encrypt_file.go"
-        - working_dir: $ORIG_BITRISE_SOURCE_DIR/_tmp
         - runner: "go run"
         - is_debug: "yes"
     - path::./:
@@ -53,12 +51,12 @@ workflows:
         inputs:
         - decrypt_passphrase: $FILE_DECRYPT_PASSPHRASE
         - encrypted_file_path: $ENCRYPTED_FILE
-        - output_file_path: decrypted
+        - output_file_path: $DECRYPTED_FILE
     - script:
         inputs:
         - content: |
             #!/bin/bash
-            diff $ORIGINAL_FILE decrypted
+            diff $ORIGINAL_FILE $DECRYPTED_FILE
 
   # ----------------------------------------------------------------
   # --- workflows to Share this step into a Step Library
