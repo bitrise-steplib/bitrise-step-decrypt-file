@@ -1,14 +1,12 @@
 title: Decrypt file
 summary: This step decrypts a file encrypted with `gpg`, using the default AES128 symmetric cypher.
 description: |
+  You can use this step to decrypt a file.
 
-    You can use this step to decrypt a file in your repository or stored on bitrise.io or other provider (with the File Downloader step).
+  How to create an encrypted file:
 
-    How to create an encrypted file:
-
-    1. Create a secure passphrase of at least 22 alphanumeric characters: `pwgen -s 22 1`
-    2. Encrypt file: `gpg -c my_secret.txt`
-    3. Upload file (`my_secret.txt.gpg`) to bitrise.io or to any other provider.
+  1. Create a secure passphrase of at least 22 alphanumeric characters: `pwgen -s 22 1`
+  2. Encrypt the file: `gpg -c my_secret.txt`
 website: https://github.com/bitrise-steplib/bitrise-step-decrypt-file
 source_code_url: https://github.com/bitrise-steplib/bitrise-step-decrypt-file
 support_url: https://github.com/bitrise-steplib/bitrise-step-decrypt-file/issues
@@ -30,20 +28,20 @@ toolkit:
   go:
     package_name: github.com/bitrise-steplib/bitrise-step-decrypt-file
 inputs:
-  - decrypt_passphrase: $FILE_DECRYPT_PASSPHRASE
+  - decrypt_passphrase:
     opts:
       title: "Passphrase for file decryption"
       description: |
         The passphrase is used as a parameter for gpg.
       is_sensitive: true
       is_required: true
-  - encrypted_file_path: $FILE_DECRYPT_ENCRYPTED_FILE_PATH
+  - encrypted_file_path:
     opts:
       title: "Enrypted file path"
       description: |
         File path to encrypted (input) file, to be decrypted.
       is_required: true
-  - output_file_path: $FILE_DECRYPT_OUTPUT_FILE_PATH
+  - output_file_path:
     opts:
       title: "Output (decrypted) file path"
       description: |

@@ -2,12 +2,13 @@ package main
 
 import (
 	"crypto/rand"
+	"fmt"
 	"os"
 
 	"github.com/bitrise-io/go-utils/command"
+	"github.com/bitrise-io/go-utils/errorutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/bitrise-tools/go-steputils/stepconf"
 )
 
 func failf(format string, args ...interface{}) {
@@ -15,70 +16,96 @@ func failf(format string, args ...interface{}) {
 	os.Exit(1)
 }
 
-func runCommand(cmdSlice []string) (string, error) {
-	model, err := command.NewFromSlice(cmdSlice)
-	if err != nil {
-		failf("Command creation failed: %#v", err)
-	}
-	log.Donef("=> %s", model.PrintableCommandArgs())
-	out, err := model.RunAndReturnTrimmedCombinedOutput()
-	return out, err
-}
-
 const inputFile = "my_secret"
 const outputFile = inputFile + ".gpg"
 
 func main() {
-	log.SetEnableDebugLog(true)
 	inputFileAbsPath, err := pathutil.AbsPath(inputFile)
 	if err != nil {
-		failf("File path: %#v", err)
+		failf("Absolute file path expansion failed: %s", err)
+	}
+	outputFileAbsPath, err := pathutil.AbsPath(outputFile)
+	if err != nil {
+		failf("Absolute file path expansion failed: %s", err)
 	}
 	// Generate passphrase
-	out, err := runCommand([]string{"pwgen", "-s", "22", "1"})
+	pwgenCmd := command.New("pwgen", "-s", "22", "1")
+	out, err := pwgenCmd.RunAndReturnTrimmedCombinedOutput()
 	if err != nil {
-		failf("Generating passphrase failed, error: %#v, out: %s", err, out)
+		if errorutil.IsExitStatusError(err) {
+			failf("%s failed, %s", pwgenCmd.PrintableCommandArgs(), out)
+		} else {
+			failf("%s failed, %s", pwgenCmd.PrintableCommandArgs(), err)
+		}
 	}
-	passphrase := stepconf.Secret(out)
+	log.Printf("Generated passpharase.")
+	passphrase := out
 	// Create input file
 	file, err := os.Create(inputFileAbsPath)
 	if err != nil {
-		failf("File create failed, error: %#v", err)
+		failf("File create failed, error: %s", err)
 	}
+	log.Printf("Created file: %s", inputFileAbsPath)
+	// Fill input file with random data
 	data := make([]byte, 10^7)
-	_, err = rand.Read(data)
-	if err != nil {
+	if _, err := rand.Read(data); err != nil {
 		failf("Random data generation failed")
 	}
-	_, err = file.Write(data)
-	if err != nil {
-		failf("Writing encrypted file failed, error: %#v", err)
+	if _, err := file.Write(data); err != nil {
+		failf("Writing encrypted file failed, error: %s", err)
 	}
+	log.Printf("Wrote random data to file: %s", inputFileAbsPath)
 	// Remove output file
-	err = os.Remove(outputFile)
-	if err != nil && !os.IsNotExist(err) {
-		failf("Output file removal failed, error: %#v", err)
+	if err := os.Remove(outputFile); err != nil && !os.IsNotExist(err) {
+		failf("Output file removal failed, error: %s", err)
 	}
+	log.Printf("Output file removed/did not exist: %s", outputFileAbsPath)
 	// Encrypt file
-	outputFileAbsPath, err := pathutil.AbsPath(outputFile)
-	if err != nil {
-		failf("Absolute file path expansion failed: %#v", err)
+	gpgCmd := command.New("gpg", "--batch", "--passphrase", passphrase, "-c",
+		inputFileAbsPath)
+	if out, err := gpgCmd.RunAndReturnTrimmedCombinedOutput(); err != nil {
+		if errorutil.IsExitStatusError(err) {
+			failf("%s failed, %s", gpgCmd.PrintableCommandArgs(), out)
+		} else {
+			failf("%s failed, %s", gpgCmd.PrintableCommandArgs(), err)
+		}
 	}
-	out, err = runCommand([]string{"gpg", "--batch", "--passphrase", string(passphrase), "-c", inputFileAbsPath})
-	if err != nil {
-		failf("Encryption failed, error: %#v, out: %s", err, out)
+	log.Printf("Encrypted file, output: %s", outputFileAbsPath)
+	// Export env vars with envman
+	envmanCmd := command.New("envman", "add", "--key", "ORIGINAL_FILE",
+		"--value", inputFileAbsPath)
+	fmt.Println()
+	log.Donef("$ %s", envmanCmd.PrintableCommandArgs())
+	fmt.Println()
+	if out, err := envmanCmd.RunAndReturnTrimmedCombinedOutput(); err != nil {
+		if errorutil.IsExitStatusError(err) {
+			failf("%s failed, %s", envmanCmd.PrintableCommandArgs(), out)
+		} else {
+			failf("%s failed, %s", envmanCmd.PrintableCommandArgs(), err)
+		}
 	}
-	// Set env vars in envman
-	out, err = runCommand([]string{"envman", "add", "--key", "ORIGINAL_FILE", "--value", inputFileAbsPath})
-	if err != nil {
-		failf("Envman add failed, error: %#v, out: %s", err, out)
+	envmanCmd = command.New("envman", "add", "--key", "ENCRYPTED_FILE",
+		"--value", outputFileAbsPath)
+	fmt.Println()
+	log.Donef("$ %s", envmanCmd.PrintableCommandArgs())
+	fmt.Println()
+	if out, err := envmanCmd.RunAndReturnTrimmedCombinedOutput(); err != nil {
+		if errorutil.IsExitStatusError(err) {
+			failf("%s failed, %s", envmanCmd.PrintableCommandArgs(), out)
+		} else {
+			failf("%s failed, %s", envmanCmd.PrintableCommandArgs(), err)
+		}
 	}
-	out, err = runCommand([]string{"envman", "add", "--key", "ENCRYPTED_FILE", "--value", outputFileAbsPath})
-	if err != nil {
-		failf("Envman add failed, error: %#v, out: %s", err, out)
-	}
-	out, err = runCommand([]string{"envman", "add", "--key", "FILE_DECRYPT_PASSPHRASE", "--value", string(passphrase)})
-	if err != nil {
-		failf("Envman add failed, error: %#v, out: %s", err, out)
+	envmanCmd = command.New("envman", "add", "--key", "FILE_DECRYPT_PASSPHRASE",
+		"--value", passphrase)
+	fmt.Println()
+	log.Donef("$ %s", envmanCmd.PrintableCommandArgs())
+	fmt.Println()
+	if out, err := envmanCmd.RunAndReturnTrimmedCombinedOutput(); err != nil {
+		if errorutil.IsExitStatusError(err) {
+			failf("%s failed, %s", envmanCmd.PrintableCommandArgs(), out)
+		} else {
+			failf("%s failed, %s", envmanCmd.PrintableCommandArgs(), err)
+		}
 	}
 }

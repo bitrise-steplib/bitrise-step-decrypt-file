@@ -1,12 +1,12 @@
 # Decrypt file
 
-You can use this step to decrypt a file in your repository or stored on bitrise.io or other provider (with the File Downloader step).
+You can use this step to decrypt a file.
 
 How to create an encrypted file:
 
 1. Create a secure passphrase of at least 22 alphanumeric characters: `pwgen -s 22 1`
-2. Encrypt file: `gpg -c my_secret.txt`
-3. Upload file (`my_secret.txt.gpg`) to bitrise.io or to any other provider.
+2. Encrypt the file: `gpg -c my_secret.txt`
+
 ## How to use this Step
 
 Can be run directly with the [bitrise CLI](https://github.com/bitrise-io/bitrise),
