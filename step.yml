@@ -1,0 +1,49 @@
+title: Decrypt file
+summary: This step decrypts a file encrypted with `gpg`, using the default AES128 symmetric cypher.
+description: |
+  You can use this step to decrypt a file.
+
+  How to create an encrypted file:
+
+  1. Create a secure passphrase of at least 22 alphanumeric characters: `pwgen -s 22 1`
+  2. Encrypt the file: `gpg -c my_secret.txt`
+website: https://github.com/bitrise-steplib/bitrise-step-decrypt-file
+source_code_url: https://github.com/bitrise-steplib/bitrise-step-decrypt-file
+support_url: https://github.com/bitrise-steplib/bitrise-step-decrypt-file/issues
+host_os_tags:
+  - osx-10.10
+  - ubuntu-16.04
+type_tags:
+  - utility
+is_requires_admin_user: true
+is_always_run: false
+is_skippable: false
+run_if: ""
+deps:
+  brew:
+  - name: gpg
+  apt_get:
+  - name: gpg
+toolkit:
+  go:
+    package_name: github.com/bitrise-steplib/bitrise-step-decrypt-file
+inputs:
+  - decrypt_passphrase:
+    opts:
+      title: "Passphrase for file decryption"
+      description: |
+        The passphrase is used as a parameter for gpg.
+      is_sensitive: true
+      is_required: true
+  - encrypted_file_path:
+    opts:
+      title: "Enrypted file path"
+      description: |
+        File path to encrypted (input) file, to be decrypted.
+      is_required: true
+  - output_file_path:
+    opts:
+      title: "Output (decrypted) file path"
+      description: |
+        The decrypted file will be placed at this path. If there already exists a file at this location, it will be removed first. 
+      is_required: true
