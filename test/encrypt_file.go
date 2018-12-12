@@ -29,7 +29,7 @@ func main() {
 		failf("Absolute file path expansion failed: %s", err)
 	}
 	// Generate passphrase
-	pwgenCmd := command.New("pwgen", "-s", "22", "1")
+	pwgenCmd := command.New("pwgen", "-s", "32", "1")
 	out, err := pwgenCmd.RunAndReturnTrimmedCombinedOutput()
 	if err != nil {
 		if errorutil.IsExitStatusError(err) {

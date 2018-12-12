@@ -5,7 +5,7 @@ description: |
 
   How to create an encrypted file:
 
-  1. Create a secure passphrase of at least 22 alphanumeric characters: `pwgen -s 22 1`
+  1. Create a secure passphrase of at least 32 alphanumeric characters: `pwgen -s 32 1`
   2. Encrypt the file: `gpg -c my_secret.txt`
 website: https://github.com/bitrise-steplib/bitrise-step-decrypt-file
 source_code_url: https://github.com/bitrise-steplib/bitrise-step-decrypt-file
