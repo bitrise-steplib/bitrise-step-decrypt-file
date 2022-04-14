@@ -1,7 +1,7 @@
 title: Decrypt file
 summary: This Step decrypts a file encrypted with `gpg`, using the default AES128 symmetric cypher.
 description: |
-  The Step decrypts a file encrypted with `gpg`. This can be helpful if you would like to store an encrypted file in your repository, like a google-services.json file used to authenticate your project. Using this Step, you can decrypt that file and use it in your Workflow.
+  The Step decrypts a file encrypted with `gpg`. This can be helpful if you would like to store an encrypted file in your repository, like a `google-services.json` file used to authenticate your project. Using this Step, you can decrypt that file and use it in your Workflow.
 
   To create an encrypted file with `gpg`:
   1. Create a secure passphrase of at least 32 alphanumeric characters: `pwgen -s 32 1`
