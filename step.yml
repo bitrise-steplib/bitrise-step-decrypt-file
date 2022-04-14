@@ -52,7 +52,7 @@ inputs:
       is_required: true
   - encrypted_file_path:
     opts:
-      title: "Encrypted file path"
+      title: "Path to the encrypted input file"
       description: |
         File path to encrypted (input) file, to be decrypted.
       is_required: true
