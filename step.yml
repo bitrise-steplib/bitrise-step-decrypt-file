@@ -21,7 +21,6 @@ description: |
   * [Bitrise Blog: New step available - Decrypt file](https://blog.bitrise.io/post/new-step-available-decrypt-file)
   * [Encrypting and decrypting documents](https://www.gnupg.org/gph/en/manual/x110.html)
 
-
 website: https://github.com/bitrise-steplib/bitrise-step-decrypt-file
 source_code_url: https://github.com/bitrise-steplib/bitrise-step-decrypt-file
 support_url: https://github.com/bitrise-steplib/bitrise-step-decrypt-file/issues
